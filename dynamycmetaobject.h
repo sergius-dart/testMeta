@@ -15,26 +15,32 @@ private:
 public:
     DynamycMetaObject(const QMetaObject *parent );
     
+    ///инициализация динамического метаобъекта, и подстановка его в нужное место
     template < typename T >
     static void init(T * ptr)
     {
-        if ( (ptr->d_ptr->metaObject) )
-            if (DynamycMetaObject * ptrMeta = dynamic_cast<DynamycMetaObject*>(ptr->d_ptr->metaObject)) 
-            {
-                qWarning() << "DynamycMetaObject is installed!" << ptrMeta << "\n" <<
+        if ( ptr->d_ptr->metaObject ) // уже есть динамический метаобъект. Тогда мы ничего не делаем.
+        {
+                qWarning() << "DynamycMetaObject is installed!" << ptr->d_ptr->metaObject << "\n" <<
                               "not installed now!";
-            } else {}
+                return;
+        }
         else {
-            ptr->d_ptr->metaObject = new DynamycMetaObject( &T::staticMetaObject );
+            ptr->d_ptr->metaObject = new DynamycMetaObject( &T::staticMetaObject );//инициализация динамического метаобъекта с помощью статической методаты нашего класса.
+            //При использовании указателей на базовые классы получим очень неприятный эффект
         }
     }
     
     typedef BaseHolder* SlotFunc;
     
+    ///получение Id метода по его сигнатуре
     int getIdMethod( QByteArray name ) const;
+    ///добавление сигнала по сигнатуре
     void addSignal( QByteArray signature);
+    ///добавление слота по сигнатуре. 
     void addSlot ( QByteArray signature, SlotFunc p );
       
+    ///"создаем динамический метаобъект"
     virtual QAbstractDynamicMetaObject *toDynamicMetaObject(QObject * thisObj);    
 protected:
     
@@ -48,17 +54,19 @@ protected:
         uint tag;
         uint flags;
     };
-    
+    ///создание основной метадаты
     void makeMetaObject();
+    void clearMetaData();
     
+protected: 
+    /*Дополнительные функции*/
     QMetaObjectPrivate & getPrivateData() const;
     DataMethodInfo &getDataMethodInfo(int id) const;
-    void clearMetaData();
     
     
 private:
     const QMetaObject * injected;         ///< куда заинжектились. Надо для создания правильного метаобъекта
-    QObject * parentObj;
+    QObject * parentObj;///указывает с каким объектом работаем
     struct ParamInfo{
         QString name;
         QMetaType::Type type;
@@ -81,20 +89,20 @@ private:
     struct {
         int stringCount{0};
         char* allStringBuf{nullptr};
-    } localVariables;
+    } localVariables;///"лишние" переменные, пока не придумал куда деть
+    ///требование вызова метода метаобъекта ( чаще всего, остальные варианты пока не рассматриваем )
     virtual int metaCall(QObject * obj, Call _c, int _id, void **_a);
-
-    
+    ///запускаем наш метод по внутреннему id
     virtual int callMethod(int _id, void **_a);
     
-    DynamycMetaObject * next {nullptr};
-    
 private:
+    ///создание строковой структуры
     void makeStringData();
+    ///создание основного uint массива
     void makeData();
     
+    //вспомогательные функции
     MethodInfo buildInfoFromSignature( QByteArray signature ) const;///сигнатуры вида slot(Type1 name1,Type2 name2).
-    
     ParamInfo buildParamInfo( QString src)const;
 
 };
