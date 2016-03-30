@@ -7,9 +7,9 @@ void dumpMeta( QObject * ptr )
 {
     const QMetaObject * meta = ptr->metaObject();
     qDebug() << "--------DUMP-META-OBJECT--------------------";
-    qDebug() << " className     - " << meta->className() << '\n' <<
-                "methodCount   - " << meta->methodCount() << '\n' <<
-                "methodOffset  - " << meta->methodOffset() << '\n';
+    qDebug() << "className     - " << meta->className()     << '\n' <<
+                "methodCount   - " << meta->methodCount()   << '\n' <<
+                "methodOffset  - " << meta->methodOffset()  << '\n';
     qDebug() << "methods from TOP meta";
     for( int i = meta->methodOffset(); i < meta->methodCount() ; i++ )
     {

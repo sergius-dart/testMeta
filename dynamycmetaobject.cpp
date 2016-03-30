@@ -164,15 +164,18 @@ int DynamycMetaObject::metaCall(QObject * ptr, Call _c, int _id, void **_a)
     int parserId = _id;
     //Проверяем сначало все что нам требуется.
     DynamycMetaObject * currentMeta = this;
+    //теоретически такой ситуации возникнуть не должно, но лучше перестраховаться
     if ( currentMeta )
         return currentMeta->callMethod(_id - currentMeta->methodOffset() , _a );
 
+    //Если динамического метаобъекта не создано - вызываем старый обработчик
     return  parentObj->qt_metacall(_c, parserId, _a);
 }
 
 int DynamycMetaObject::callMethod(int _id, void **_a)
 {
     QVector<MethodInfo>* lst = nullptr;
+    //Сначало определяем в каком контейнере у нас лежит информация о функции, и что у нас спрашивают. Нам передали относительный ID!
     if ( _id < signalList.size() )
         lst = &signalList;
     else
@@ -180,12 +183,13 @@ int DynamycMetaObject::callMethod(int _id, void **_a)
         _id -= signalList.length();
         lst = &slotList;
     }
+    //если мы нашли контейнер и в контейнере есть такой элемент, то просто вызываем его.
     if ( lst && lst->size() > _id )
     {
         lst->at( _id ).p->call(_a);
         _id = -1;//раз мы нашли и запустили обработчик - больше нам делать ничего с этим вызовом ненадо. Возвращаем то что надо.
     }
-    //мы обработали!
+    //Возвращаем id метода который надо вызвать, если мы не смогли обработать. Иначе возвращаем -1.
     return _id;
 }
 

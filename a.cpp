@@ -22,7 +22,7 @@ void A::addSignal( bool first )
     static int indexSignal = 0;
     if ( first )
         indexSignal = 0;
-    DynamycMetaObject* meta = static_cast<DynamycMetaObject*>(QObject::d_ptr->metaObject);
+    DynamycMetaObject* meta = dynamic_cast<DynamycMetaObject*>(QObject::d_ptr->metaObject);
     if ( !meta )
     {
         qWarning() << "Dont init meta!";
@@ -37,7 +37,7 @@ void A::addSlot(bool first)
     static int indexSignal = 0;
     if ( first )
         indexSignal = 0;
-    DynamycMetaObject* meta = static_cast<DynamycMetaObject*>(QObject::d_ptr->metaObject);
+    DynamycMetaObject* meta = dynamic_cast<DynamycMetaObject*>(QObject::d_ptr->metaObject);
     if ( !meta )
     {
         qWarning() << "Dont init meta!";

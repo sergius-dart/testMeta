@@ -34,7 +34,7 @@ public:
     typedef BaseHolder* SlotFunc;
     
     ///получение Id метода по его сигнатуре
-    int getIdMethod( QByteArray name ) const;
+    int getIdMethod( QByteArray signature ) const;
     ///добавление сигнала по сигнатуре
     void addSignal( QByteArray signature);
     ///добавление слота по сигнатуре. 
@@ -90,6 +90,8 @@ private:
         int stringCount{0};
         char* allStringBuf{nullptr};
     } localVariables;///"лишние" переменные, пока не придумал куда деть
+    
+//Перегрузка методов из QAbstractDynamicMetaObject
     ///требование вызова метода метаобъекта ( чаще всего, остальные варианты пока не рассматриваем )
     virtual int metaCall(QObject * obj, Call _c, int _id, void **_a);
     ///запускаем наш метод по внутреннему id
